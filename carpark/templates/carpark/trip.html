@@ -1,0 +1,97 @@
+{% extends 'base.html'%}
+    {% block title %}Создать путь{% endblock %}
+    
+  {% block content %}
+  <style type="text/css">
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+    
+    <div class="container">
+    <div class="jumbotron">
+    <div id="map"></div>
+    <form action="" id="frm" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button id="sbm" class="btn" type="button">Добавить</button>
+    </form>
+    </div>
+    </div>
+    <script>
+      var map;
+      var markersCount = 0;
+      var markerStart;
+      var markerEnd;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 55.797257, lng: 49.189824},
+          zoom: 10,
+          streetViewControl: false,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          disableDefaultUI: true,
+          enableMarkers: true
+        });
+
+        
+
+        var placeMarker = function(latLng, mark){
+            var marker = new google.maps.Marker({
+              position: new google.maps.LatLng(latLng.lat(), latLng.lng()),
+              map: map,
+              draggable:true,
+              title: mark
+            });
+            
+            return marker;
+        };
+
+        map.addListener('click', function(e){
+          switch(markersCount){
+            case 0:
+              markerStart = placeMarker(e.latLng, "Отправление");
+              markersCount++;
+              break;
+            case 1:
+              markerEnd = placeMarker(e.latLng, "Прибытие");
+              markersCount++;
+              break;
+          } 
+          
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_key }}&callback=initMap&libraries=places&language=ru"
+    async defer></script>
+    <script type="text/javascript">
+      var check = 0;
+      function setMarkersAddress(marker, field, field_lat, field_lng){
+        var g = new google.maps.Geocoder();
+        g.geocode({ location:  marker.getPosition()}, function(results, status){
+          if(status == "OK"){
+            var res = results[0].address_components
+            var s = "";
+            for(i=res.length-1; i>=0; i--){
+              s += res[i].long_name + " "
+            }
+            field.value = s;
+            field_lat.value = marker.getPosition().lat();
+            field_lng.value = marker.getPosition().lng();
+          }
+          if(check == 1){
+            form = document.getElementById('frm');
+            form.submit();
+          }else{
+            check++;
+          }
+        });
+      };
+      document.getElementById("sbm").onclick = function(){
+        
+        setMarkersAddress(markerStart, document.getElementById('id_startpoint'), document.getElementById('id_start_lat'), document.getElementById('id_start_lng'));
+        setMarkersAddress(markerEnd, document.getElementById('id_endpoint'), document.getElementById('id_end_lat'), document.getElementById('id_end_lng'));
+        
+      };
+      </script>
+    {% endblock %}

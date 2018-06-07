@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+    {% block title %}Создать авто{% endblock %}
+    {% block content %}
+  <div class="container">
+    <div class="jumbotron">
+  <ul>
+    {% for trip in object_list %}
+      <li> <a href="{% url 'carpark:close' trip_id=trip.id %}">{{ trip.client }} - {{ trip.startpoint }} - {{ trip.endpoint }} </a>  </li>
+    {% endfor %}
+  </ul>
+  </div>
+  </div>
+  {% endblock %}

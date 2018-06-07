@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+    {% block title %}Создать авто{% endblock %}
+  {% block content %}
+  <div class="container">
+    <div class="jumbotron">
+    <form action="" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Добавить</button>
+    </form>
+    </div>
+    </div>
+    {% endblock %}
